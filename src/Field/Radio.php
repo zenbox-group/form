@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace ZenBox\Form\Field;
 
 use ZenBox\Form\Field;
-use ZenBox\Form\FormRenderer;
+use ZenBox\Form\Form;
 
 final class Radio extends Field
 {
     public array $options;
 
-    public function __construct(FormRenderer $renderer, string $name, string $label, array $options)
+    public function __construct(string $name, string $label, array $options)
     {
-        parent::__construct($renderer, $name, $label);
+        parent::__construct($name, $label);
         $this->options = $options;
     }
 
     function render(): string
     {
-        return $this->renderer->radio($this);
+        return Form::$renderer->radio($this);
     }
 }

@@ -17,39 +17,52 @@ use ZenBox\Form\Field\Text;
 final class FormBuilder
 {
     private Form $form;
-    private FormRenderer $renderer;
     private Field $currentField;
 
-    public function __construct(FormRenderer $renderer)
+    private function __construct()
     {
-        $this->renderer = $renderer;
+
     }
 
-    public function create(): FormBuilder
+    public static function create(): self
     {
-        $builder = new static($this->renderer);
-        $builder->form = new Form($this->renderer);
+        $builder = new self();
+        $builder->form = new Form();
 
         return $builder;
     }
 
+    public function methodPost(): self
+    {
+        $this->form->methodPost();
+
+        return $this;
+    }
+
+    public function methodGet(): self
+    {
+        $this->form->methodGet();
+
+        return $this;
+    }
+
     public function text(string $name, string $label): self
     {
-        $this->add(new Text($this->renderer, $name, $label));
+        $this->add(new Text($name, $label));
 
         return $this;
     }
 
     public function password(string $name, string $label): self
     {
-        $this->add(new Password($this->renderer, $name, $label));
+        $this->add(new Password($name, $label));
 
         return $this;
     }
 
     public function checkbox(string $name, string $label): self
     {
-        $field = new Checkbox($this->renderer, $name, $label);
+        $field = new Checkbox($name, $label);
 
         $this->add($field);
 
@@ -58,7 +71,7 @@ final class FormBuilder
 
     public function select(string $name, string $label, array $options): self
     {
-        $field = new Select($this->renderer, $name, $label, $options);
+        $field = new Select($name, $label, $options);
 
         $this->add($field);
 
@@ -67,7 +80,7 @@ final class FormBuilder
 
     public function radio(string $name, string $label, array $options): self
     {
-        $field = new Radio($this->renderer, $name, $label, $options);
+        $field = new Radio($name, $label, $options);
 
         $this->add($field);
 
@@ -76,28 +89,28 @@ final class FormBuilder
 
     public function file(string $name, string $label, string $accept = ''): self
     {
-        $this->add(new File($this->renderer, $name, $label, $accept));
+        $this->add(new File($name, $label, $accept));
 
         return $this;
     }
 
     public function image(string $name, string $label, string $accept = ''): self
     {
-        $this->add(new Image($this->renderer, $name, $label, $accept));
+        $this->add(new Image($name, $label, $accept));
 
         return $this;
     }
 
     public function hidden(string $name): self
     {
-        $this->add(new Hidden($this->renderer, $name, ''));
+        $this->add(new Hidden($name, ''));
 
         return $this;
     }
 
     public function submit(string $value): self
     {
-        $this->add(new Submit($this->renderer, '', ''))->value($value);
+        $this->add(new Submit('', ''))->value($value);
 
         return $this;
     }
@@ -119,6 +132,13 @@ final class FormBuilder
     public function autocomplete(string $value): self
     {
         $this->currentField->autocomplete = $value;
+
+        return $this;
+    }
+
+    public function constrains(object ...$constrains): self
+    {
+        $this->currentField->constrains = $constrains;
 
         return $this;
     }

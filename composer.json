@@ -4,7 +4,11 @@
     "keywords": [
         "zenbox",
         "form",
-        "bootstrap4"
+        "bootstrap4",
+        "psr",
+        "psr-7",
+        "http",
+        "request"
     ],
     "homepage": "https://github.com/zenbox-group/form",
     "license": "MIT",
@@ -15,12 +19,17 @@
         }
     },
     "suggest": {
-        "beberlei/assert": "For form validation"
+        "symfony/validator": "Symfony validator component for form validation",
+        "laminas/laminas-validator": "Laminas validator component for form validation"
     },
     "require": {
-        "php": "^7.4"
+        "php": "^7.4",
+        "psr/http-message": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.3"
+        "phpunit/phpunit": "^9.3",
+        "symfony/validator": "^5.3",
+        "laminas/laminas-validator": "^2.14",
+        "laminas/laminas-diactoros": "^2.6"
     }
 }

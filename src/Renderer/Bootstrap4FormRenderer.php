@@ -18,7 +18,7 @@ use ZenBox\Form\Field\Textarea;
 use ZenBox\Form\Form;
 use ZenBox\Form\FormRenderer;
 
-final class Bootstrap4 implements FormRenderer
+final class Bootstrap4FormRenderer implements FormRenderer
 {
     public function form(Form $form): string
     {
@@ -36,7 +36,7 @@ final class Bootstrap4 implements FormRenderer
 
     public function open(Form $form): string
     {
-        return '<form enctype="multipart/form-data" class="needs-validation" method="post" novalidate>';
+        return '<form enctype="multipart/form-data" class="needs-validation" method="' . $form->method . '" novalidate>';
     }
 
     public function close(Form $form): string
@@ -48,8 +48,8 @@ final class Bootstrap4 implements FormRenderer
     {
         $errorHtml = '';
         $class = 'form-control';
-        if ($field->hasError()) {
-            $errorHtml = '<div class="invalid-feedback">' . $field->error . '</div>';
+        if ($field->hasErrors()) {
+            $errorHtml = '<div class="invalid-feedback">' . implode('<br>', $field->errors) . '</div>';
             $class .= ' is-invalid';
         }
 
@@ -66,8 +66,8 @@ HTML;
     {
         $errorHtml = '';
         $class = 'form-control';
-        if ($field->hasError()) {
-            $errorHtml = '<div class="invalid-feedback">' . $field->error . '</div>';
+        if ($field->hasErrors()) {
+            $errorHtml = '<div class="invalid-feedback">' . implode('<br>', $field->errors) . '</div>';
             $class .= ' is-invalid';
         }
 
@@ -99,8 +99,8 @@ HTML;
 
         $errorHtml = '';
         $class = 'form-control';
-        if ($field->hasError()) {
-            $errorHtml = '<div class="invalid-feedback">' . $field->error . '</div>';
+        if ($field->hasErrors()) {
+            $errorHtml = '<div class="invalid-feedback">' . implode('<br>', $field->errors) . '</div>';
             $class .= ' is-invalid';
         }
 
@@ -119,8 +119,8 @@ HTML;
     {
         $errorHtml = '';
         $class = 'form-control';
-        if ($field->hasError()) {
-            $errorHtml = '<div class="invalid-feedback">' . $field->error . '</div>';
+        if ($field->hasErrors()) {
+            $errorHtml = '<div class="invalid-feedback">' . implode('<br>', $field->errors) . '</div>';
             $class .= ' is-invalid';
         }
 
@@ -137,8 +137,8 @@ HTML;
     {
         $errorHtml = '';
         $class = 'form-control';
-        if ($field->hasError()) {
-            $errorHtml = '<div class="invalid-feedback">' . $field->error . '</div>';
+        if ($field->hasErrors()) {
+            $errorHtml = '<div class="invalid-feedback">' . implode('<br>', $field->errors) . '</div>';
             $class .= ' is-invalid';
         }
 
@@ -155,7 +155,7 @@ HTML;
     public function hidden(Hidden $field): string
     {
         return <<<HTML
-<input type="hidden" name="{$field->name}" value="{$field->value}" data-error="{$field->error}">
+<input type="hidden" name="{$field->name}" value="{$field->value}" data-error="{implode('<br>', $field->errors)}">
 HTML;
     }
 
@@ -163,8 +163,8 @@ HTML;
     {
         $errorHtml = '';
         $class = 'form-control';
-        if ($field->hasError()) {
-            $errorHtml = '<div class="invalid-feedback">' . $field->error . '</div>';
+        if ($field->hasErrors()) {
+            $errorHtml = '<div class="invalid-feedback">' . implode('<br>', $field->errors) . '</div>';
             $class .= ' is-invalid';
         }
 
@@ -181,8 +181,8 @@ HTML;
     {
         $errorHtml = '';
         $class = 'form-control';
-        if ($field->hasError()) {
-            $errorHtml = '<div class="invalid-feedback">' . $field->error . '</div>';
+        if ($field->hasErrors()) {
+            $errorHtml = '<div class="invalid-feedback">' . implode('<br>', $field->errors) . '</div>';
             $class .= ' is-invalid';
         }
         $selected = !empty($field->value) ? ' checked' : '';
@@ -211,8 +211,8 @@ HTML;
 
         $errorHtml = '';
         $class = 'form-control';
-        if ($field->hasError()) {
-            $errorHtml = '<div class="invalid-feedback">' . $field->error . '</div>';
+        if ($field->hasErrors()) {
+            $errorHtml = '<div class="invalid-feedback">' . implode('<br>', $field->errors) . '</div>';
             $class .= ' is-invalid';
         }
 

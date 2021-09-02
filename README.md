@@ -4,7 +4,7 @@
 [![Stable Version](https://img.shields.io/packagist/v/zenbox/form.svg?style=for-the-badge&label=Latest)](https://packagist.org/packages/zenbox/form)
 [![Total Downloads](https://img.shields.io/packagist/dt/zenbox/form.svg?style=for-the-badge&label=Total+downloads)](https://packagist.org/packages/zenbox/form)
 
-Form HTML builder standalone component. Bootstrap 4 form renderer.
+Form HTML builder standalone component. Bootstrap 4 form renderer. Symfony or Laminas validation.
 
 ## Installation
 
@@ -16,33 +16,24 @@ composer require zenbox/form
 
 ## Configuration
 
-Use a dependency container for the FormBuilder configuration and inject FormBuilder into the HTTP request handler.
-
-Describe the form renderer as a dependency:
+Use the static method for the rendering and validation configuration
 
 ```php
-    public function getDependencies(): array
-    {
-        return [
-            'aliases' => [
-                ZenBox\Form\FormRenderer::class => ZenBox\Form\Renderer\Bootstrap4::class,
-            ],
-        ];
-    }
+// or Bootstrap4 and Symfony Validator
+Form::configuration(\ZenBox\Form\Renderer\Bootstrap4FormRenderer::class, \ZenBox\Form\Validator\SymfonyFormValidator::class);
+// or Bootstrap4 and Laminas Validator
+Form::configuration(\ZenBox\Form\Renderer\Bootstrap4FormRenderer::class, \ZenBox\Form\Validator\LaminasFormValidator::class);
 ```
 
 ## Instantiation
 
 ```php
 <?php
-use Psr\Container\ContainerInterface;
+
 use ZenBox\Form\FormBuilder;
 
-/** @var ContainerInterface $container */
-// Get from container or inject into the HTTP request handler
-$formBuilder = $container->get(FormBuilder::class);
 // Create new form
-$form = $formBuilder->create()
+$form = FormBuilder::create()
     ->text('name', 'Name')
     ->text('email', 'Email')
     ->password('password', 'Password')->autocomplete('new-password')
@@ -68,7 +59,7 @@ echo $form->getField('name');
 
 declare(strict_types=1);
 
-namespace ZenBox\Group\Infrastructure\UserInterface\RequestHandler;
+namespace App\RequestHandler;
 
 use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Diactoros\Response\RedirectResponse;
@@ -78,11 +69,10 @@ use Mezzio\Template\TemplateRendererInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
 use ZenBox\Form\FormBuilder;
-use ZenBox\Group\Application\Command\User\RegistrationUserCommand;
-use ZenBox\Group\Application\Command\User\RegistrationUserCommandHandler;
-use ZenBox\Group\Infrastructure\Assert\Assert;
-use ZenBox\Group\Infrastructure\Assert\LazyAssertionException;
 
 final class RegistrationHandler implements RequestHandlerInterface
 {
@@ -110,33 +100,19 @@ final class RegistrationHandler implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $form = $this->formBuilder->create()
-            ->text('name', 'Name')
-            ->text('email', 'Email')
-            ->password('password', 'Password')->autocomplete('new-password')
+            ->text('name', 'Name')->constrains(new NotBlank())
+            ->text('email', 'Email')->constrains(new NotBlank(), new Email())
+            ->password('password', 'Password')->autocomplete('new-password')->constrains(new NotCompromisedPassword())
             ->submit('Registration')
             ->build();
+            
+        $form->handleRequest($request);
 
-        if ($data = $request->getParsedBody()) {
-            try {
-                $form->setData($data);
-                $command = new RegistrationUserCommand($data);
-
-                Assert::lazy()
-                    ->that($command->email, 'name')
-                    ->notEmpty('Empty Name')
-                    ->that($command->email, 'email')
-                    ->notEmpty('Empty Email')
-                    ->that($command->password, 'password')
-                    ->notEmpty('Empty Password')
-                    ->verifyNow();
-
-                $this->registrationUserCommandHandler->handle($command);
-                $this->authentication->authenticate($request);
-
-                return new RedirectResponse($this->urlHelper->generate('login-success'));
-            } catch (LazyAssertionException $exception) {
-                $form->setErrors($exception->toArray());
-            }
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Get form data and registration user
+            $data = $form->getData();
+            // Registration user...
+            return new RedirectResponse($this->urlHelper->generate('registration-success'));
         }
 
         return new HtmlResponse($this->templateRenderer->render('views::registration', [
@@ -161,9 +137,12 @@ PHP Renderer
 
 ```php
 <?php
+
+use ZenBox\Form\Form;
+
 /** @var $form Form */
 // entire form
-use ZenBox\Form\Form;echo $form;
+echo $form;
 // separate elements
 echo $form->getField('email');
 ```

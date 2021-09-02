@@ -6,28 +6,32 @@ namespace ZenBox\Form;
 
 abstract class Field
 {
-    protected FormRenderer $renderer;
     public string $name;
     public string $label;
     public string $value;
     public string $placeholder;
     public string $autocomplete;
-    public string $error;
+    public array $errors;
+    public array $constrains;
 
-    public function __construct(FormRenderer $renderer, string $name, string $label)
+    public function __construct(string $name, string $label)
     {
         $this->name = $name;
         $this->label = $label;
-        $this->renderer = $renderer;
         $this->value = '';
         $this->placeholder = '';
         $this->autocomplete = '';
-        $this->error = '';
+        $this->errors = [];
     }
 
-    public function hasError(): bool
+    public function validate(): void
     {
-        return (bool)$this->error;
+        $this->errors = Form::$validator->validate($this->value, $this->constrains);
+    }
+
+    public function hasErrors(): bool
+    {
+        return !empty($this->errors);
     }
 
     abstract function render(): string;
