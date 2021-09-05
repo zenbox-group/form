@@ -22,6 +22,7 @@ abstract class Field
         $this->placeholder = '';
         $this->autocomplete = '';
         $this->errors = [];
+        $this->constrains = [];
     }
 
     public function validate(): void

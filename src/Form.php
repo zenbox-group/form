@@ -135,6 +135,7 @@ final class Form implements IteratorAggregate
 
         if (!empty($data) && is_array($data)) {
             $this->setData($data);
+            $this->validate();
         }
     }
 
